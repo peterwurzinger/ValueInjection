@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
@@ -10,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Amt der NÖ Landesregierung")]
 [assembly: AssemblyProduct("ValueInjection.Test")]
-[assembly: AssemblyCopyright("Copyright © Amt der NÖ Landesregierung 2016")]
+[assembly: AssemblyCopyright("Copyright © Peter Wurzinger 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
