@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace ValueInjection
 {
     //TODO: Make it non-static
-    //TODO: Make it Thread-safe
+    //TODO: Make it Thread-safe (?)
     public static class ValueInjector
     {
         //Cache Metadata by destination type
