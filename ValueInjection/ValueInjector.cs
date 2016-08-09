@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace ValueInjection
 {
@@ -10,11 +12,12 @@ namespace ValueInjection
     //TODO: Make it Thread-safe
     public static class ValueInjector
     {
-        private static readonly IDictionary<Type, List<ValueInjectionMetadata>> MetadataCache = new Dictionary<Type, List<ValueInjectionMetadata>>();
+        //Cache Metadata by destination type
+        private static readonly IDictionary<Type, List<ValueInjectionMetadata>> MetadataCache = new ConcurrentDictionary<Type, List<ValueInjectionMetadata>>();
 
         //Cache Lookup-Values by source type and key
-        private static readonly IDictionary<Tuple<Type, object>, object> ValueCache = new Dictionary<Tuple<Type, object>, object>();
-        private static readonly IDictionary<Type, IValueObtainer> ValueObtainers = new Dictionary<Type, IValueObtainer>();
+        private static readonly IDictionary<Tuple<Type, object>, object> ValueCache = new ConcurrentDictionary<Tuple<Type, object>, object>();
+        private static readonly IDictionary<Type, IValueObtainer> ValueObtainers = new ConcurrentDictionary<Type, IValueObtainer>();
 
         public static void UseValueObtainer<TLookupType>(IValueObtainer<TLookupType> valueObtainer)
         {
@@ -27,11 +30,12 @@ namespace ValueInjection
             if (@object == null)
                 return;
 
+            var tasks = new List<Task>();
+
             var objectType = @object.GetType();
 
             if (recursive)
             {
-                //TODO: Could asynchonous operations speed up the traversal?
 
                 //Recursively analyze reference properties
                 foreach (var referenceProperty in objectType.GetProperties().Where(p => p.CanRead
@@ -46,12 +50,14 @@ namespace ValueInjection
                         var enumerable = referenceProperty.GetValue(@object);
                         if (enumerable != null)
                         {
-                            foreach (var element in enumerable as IEnumerable)
-                                InjectValues(element);
+                            tasks.AddRange(from object element
+                                           in (IEnumerable)enumerable
+                                           select Task.Factory.StartNew(() => InjectValues(element)));
                         }
                     }
-                    else
-                        InjectValues(referenceProperty.GetValue(@object));
+                    else {
+                        tasks.Add(Task.Factory.StartNew(() => InjectValues(referenceProperty.GetValue(@object))));
+                    }
                 }
             }
 
@@ -85,6 +91,7 @@ namespace ValueInjection
                 //2.2 Set obtained value
                 metadata.DestinationProperty.SetValue(@object, value);
             }
+            Task.WaitAll(tasks.ToArray());
         }
 
         private static IEnumerable<ValueInjectionMetadata> GetOrAddMetadata(Type type)

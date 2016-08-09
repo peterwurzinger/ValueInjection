@@ -146,7 +146,7 @@ namespace ValueInjection.Test
         public void ShouldThrowExceptionIfNoValueObtainerFoundForType()
         {
             ValueInjector.Clear();
-            var testData = new TestData {ValueKey = 1};
+            var testData = new TestData { ValueKey = 1 };
 
             Assert.Throws<NotSupportedException>(() => ValueInjector.InjectValues(testData));
         }
@@ -162,7 +162,7 @@ namespace ValueInjection.Test
         [Fact]
         public void ShouldThrowExceptionIfSourcePropertyCannotBeRead()
         {
-            var testData = new UnreadableSourcePropertyTestData {ValueKey = 1};
+            var testData = new UnreadableSourcePropertyTestData { ValueKey = 1 };
 
             Assert.Throws<InvalidOperationException>(() => ValueInjector.InjectValues(testData));
         }
@@ -172,8 +172,8 @@ namespace ValueInjection.Test
         {
             var valueObtainer = new CountingValueObtainer();
             ValueInjector.UseValueObtainer(valueObtainer);
-            var testData1 = new TestData {ValueKey = 1};
-            var testData2 = new TestData {ValueKey = 1};
+            var testData1 = new TestData { ValueKey = 1 };
+            var testData2 = new TestData { ValueKey = 1 };
 
             ValueInjector.InjectValues(testData1);
             ValueInjector.InjectValues(testData2);
