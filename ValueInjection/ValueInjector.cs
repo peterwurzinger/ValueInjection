@@ -19,6 +19,8 @@ namespace ValueInjection
         private static readonly IDictionary<Tuple<Type, object>, object> ValueCache = new ConcurrentDictionary<Tuple<Type, object>, object>();
         private static readonly IDictionary<Type, IValueObtainer> ValueObtainers = new ConcurrentDictionary<Type, IValueObtainer>();
 
+        private static readonly ISet<Type> NotInjectableTypes = new HashSet<Type> { typeof(string), typeof(Enum) };
+
         public static void UseValueObtainer<TLookupType>(IValueObtainer<TLookupType> valueObtainer)
         {
             ValueObtainers[typeof(TLookupType)] = valueObtainer;
@@ -40,22 +42,26 @@ namespace ValueInjection
                 //Recursively analyze reference properties
                 foreach (var referenceProperty in objectType.GetProperties().Where(p => p.CanRead
                         && (!p.PropertyType.IsValueType
-                        && p.PropertyType != typeof(string)
-                        && p.PropertyType != typeof(Enum))
-                    ))
+                        && !NotInjectableTypes.Contains(p.PropertyType))))
                 {
                     if (typeof(IEnumerable).IsAssignableFrom(referenceProperty.PropertyType))
                     {
-                        //TODO: See if element type is convenient as shown above (not string, Enum,...)
-                        var enumerable = referenceProperty.GetValue(@object);
-                        if (enumerable != null)
+                        var enumerableType = GetEnumerableType(referenceProperty.PropertyType);
+
+                        //If target enumerable implements IEnumerable<T> see if <T> is an injectable type
+                        if (enumerableType != null && NotInjectableTypes.Contains(enumerableType))
+                            continue;
+
+                        var enumerableValue = (IEnumerable)referenceProperty.GetValue(@object);
+                        if (enumerableValue != null)
                         {
                             tasks.AddRange(from object element
-                                           in (IEnumerable)enumerable
+                                           in enumerableValue
                                            select Task.Factory.StartNew(() => InjectValues(element)));
                         }
                     }
-                    else {
+                    else
+                    {
                         tasks.Add(Task.Factory.StartNew(() => InjectValues(referenceProperty.GetValue(@object))));
                     }
                 }
@@ -129,6 +135,19 @@ namespace ValueInjection
             }
             MetadataCache[type] = metadataList;
             return metadataList;
+        }
+
+        private static Type GetEnumerableType(Type enumerableType)
+        {
+            if (enumerableType.IsGenericType && typeof(IEnumerable).IsAssignableFrom(enumerableType))
+                return enumerableType.GetGenericArguments()[0];
+
+            return enumerableType
+                .GetInterfaces()
+                .Where(f => f.IsGenericType
+                            && f.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                .Select(f => f.GenericTypeArguments[0])
+                .FirstOrDefault();
         }
 
         public static void Clear()
