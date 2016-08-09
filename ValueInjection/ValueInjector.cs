@@ -46,15 +46,15 @@ namespace ValueInjection
                 {
                     if (typeof(IEnumerable).IsAssignableFrom(referenceProperty.PropertyType))
                     {
-                        var enumerableType = GetEnumerableType(referenceProperty.PropertyType);
-
-                        //If target enumerable implements IEnumerable<T> see if <T> is an injectable type
-                        if (enumerableType != null && NotInjectableTypes.Contains(enumerableType))
-                            continue;
-
                         var enumerableValue = (IEnumerable)referenceProperty.GetValue(@object);
                         if (enumerableValue != null)
                         {
+                            var enumerableType = GetEnumerableType(enumerableValue);
+
+                            //If target enumerable implements IEnumerable<T> see if <T> is an injectable type
+                            if (enumerableType == null || NotInjectableTypes.Contains(enumerableType))
+                                continue;
+
                             tasks.AddRange(from object element
                                            in enumerableValue
                                            select Task.Factory.StartNew(() => InjectValues(element)));
@@ -137,12 +137,11 @@ namespace ValueInjection
             return metadataList;
         }
 
-        private static Type GetEnumerableType(Type enumerableType)
+        private static Type GetEnumerableType(object enumerableObject)
         {
-            if (enumerableType.IsGenericType && typeof(IEnumerable).IsAssignableFrom(enumerableType))
-                return enumerableType.GetGenericArguments()[0];
-
-            return enumerableType
+            //Dertermine type by IEnumerable<T>-Implementation
+            //IEnumerable is not supported
+            return enumerableObject.GetType()
                 .GetInterfaces()
                 .Where(f => f.IsGenericType
                             && f.GetGenericTypeDefinition() == typeof(IEnumerable<>))
