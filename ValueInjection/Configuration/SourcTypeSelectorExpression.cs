@@ -12,6 +12,11 @@ namespace ValueInjection.Configuration
             _destinationPropertySelector = destinationPropertySelector;
         }
 
+        public ValueInjectionMetadata FromKey<TDestinationKey>(Expression<Func<TDestination, TDestinationKey>> keySelectorExpression)
+        {
+            return ValueInjectionMetadata.FromExpression<TDestination, TDestinationProperty, TSource, TDestinationKey>(_destinationPropertySelector, keySelectorExpression);
+        }
+
         public ISourcePropertySelectorExpression<TDestination, TDestinationProperty, TSource, TSourceProperty> Property<TSourceProperty>(Expression<Func<TSource, TSourceProperty>> sourcePropertySelector)
         {
             return new SourcePropertySelectorExpression<TDestination, TDestinationProperty, TSource, TSourceProperty>(_destinationPropertySelector, sourcePropertySelector);

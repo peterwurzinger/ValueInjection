@@ -250,6 +250,21 @@ namespace ValueInjection.Test
             Assert.NotNull(testData.RemoteTestData);
         }
 
+        [Fact]
+        public void ShouldInjectInheritedProperties()
+        {
+            ValueInjectionMetadataBuilder.ConfigureReplacement<IHasRemoteTestData>(f => f.Of(p => p.RemoteTestData)
+                                                                                        .With<RemoteTestData>()
+                                                                                        .FromKey(td => td.ValueKey));
+
+            ValueInjector.UseValueObtainer(_remoteValueObtainer);
+            var testData = new InterfaceImplementingTestData {ValueKey = 1};
+
+            ValueInjector.InjectValues(testData);
+
+            Assert.NotNull(testData.RemoteTestData);
+        }
+
         public void Dispose()
         {
             ValueInjector.Clear();

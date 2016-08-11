@@ -50,5 +50,16 @@ namespace ValueInjection
 
             return new ValueInjectionMetadata(destinationProperty, keyProperty, sourceProperty);
         }
+
+        internal static ValueInjectionMetadata FromExpression
+    <TDestination, TDestinationProperty, TSource, TDestinationKey>(
+    Expression<Func<TDestination, TDestinationProperty>> destinationPropertySelector,
+    Expression<Func<TDestination, TDestinationKey>> keySelector)
+        {
+            var destinationProperty = ((PropertyInfo)(destinationPropertySelector.Body as MemberExpression).Member);
+            var keyProperty = ((PropertyInfo)(keySelector.Body as MemberExpression).Member);
+
+            return new ValueInjectionMetadata(destinationProperty, keyProperty, typeof(TSource));
+        }
     }
 }

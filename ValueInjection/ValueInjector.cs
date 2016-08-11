@@ -118,11 +118,13 @@ namespace ValueInjection
             if (MetadataCache.ContainsKey(type))
                 return MetadataCache[type];
 
+            var metadataList = type.GetInterfaces().SelectMany(GetOrAddMetadata).ToList();
+            if (type.BaseType != null)
+                metadataList.AddRange(GetOrAddMetadata(type.BaseType));
+
             var properties = type
                 .GetProperties()
                 .Where(p => Attribute.IsDefined(p, typeof(ValueInjectionAttribute)));
-
-            var metadataList = new List<ValueInjectionMetadata>();
 
             foreach (var destinationProperty in properties)
             {
@@ -161,8 +163,8 @@ namespace ValueInjection
                 }
 
                 if (!ValueObtainers.ContainsKey(metadata.SourceType))
-                    throw new NotSupportedException($"Lookup for Type {attr.SourceType.Name} is not supported!");
-                
+                    throw new NotSupportedException($"Lookup for Type {metadata.SourceType?.Name} is not supported!");
+
                 metadataList.Add(metadata);
             }
             MetadataCache[type] = metadataList;
