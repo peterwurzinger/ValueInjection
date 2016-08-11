@@ -35,5 +35,17 @@ namespace ValueInjection.Test
         {
             Assert.Throws<ArgumentNullException>(() => new ValueInjectionAttribute(typeof(TestData), "test", string.Empty));
         }
+
+        [Fact]
+        public void ShouldThrowArgumentNullExceptionIfKeyPropertyNameIsNull2()
+        {
+            Assert.Throws<ArgumentNullException>(() => new ValueInjectionAttribute(null));
+        }
+
+        [Fact]
+        public void ShouldThrowArgumentNullExceptionIfKeyPropertyNameIsEmpty2()
+        {
+            Assert.Throws<ArgumentNullException>(() => new ValueInjectionAttribute(string.Empty));
+        }
     }
 }

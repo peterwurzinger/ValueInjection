@@ -80,20 +80,26 @@ namespace ValueInjection
                 if (key == null)
                     throw new InvalidOperationException($"Value of Key-Property {metadata.KeyProperty.Name} is null!");
 
-                var cacheAccessor = Tuple.Create(metadata.SourceProperty.ReflectedType, key);
+                var cacheAccessor = Tuple.Create(metadata.SourceType, key);
 
                 object lookupObject;
                 if (ValueCache.ContainsKey(cacheAccessor))
                     lookupObject = ValueCache[cacheAccessor];
                 else
                 {
-                    lookupObject = ValueObtainers[metadata.SourceProperty.ReflectedType].ObtainValue(key);
+                    lookupObject = ValueObtainers[metadata.SourceType].ObtainValue(key);
+
+                    //TODO: This might be OK in some cases
                     if (lookupObject == null)
                         throw new InvalidOperationException("Obtained value is null!");
 
                     ValueCache[cacheAccessor] = lookupObject;
                 }
-                var value = metadata.SourceProperty.GetValue(lookupObject);
+
+                var value = metadata.SourceProperty != null
+                    ? metadata.SourceProperty.GetValue(lookupObject)
+                    : lookupObject;
+
                 //2.2 Set obtained value
                 metadata.DestinationProperty.SetValue(@object, value);
             }
@@ -104,7 +110,7 @@ namespace ValueInjection
         {
             if (!MetadataCache.ContainsKey(typeof(TDestination)))
                 MetadataCache[typeof(TDestination)] = new List<ValueInjectionMetadata>();
-            MetadataCache[typeof (TDestination)].Add(metadata);
+            MetadataCache[typeof(TDestination)].Add(metadata);
         }
 
         private static IEnumerable<ValueInjectionMetadata> GetOrAddMetadata(Type type)
@@ -120,25 +126,44 @@ namespace ValueInjection
 
             foreach (var destinationProperty in properties)
             {
+                var metadata = new ValueInjectionMetadata();
+
                 if (!destinationProperty.CanWrite)
                     throw new InvalidOperationException($"Cannot write marked property {destinationProperty.Name}!");
+
+                metadata.DestinationProperty = destinationProperty;
 
                 var attr = destinationProperty.GetCustomAttribute<ValueInjectionAttribute>();
                 var keyProperty = type.GetProperty(attr.KeyPropertyName);
                 if (keyProperty == null)
                     throw new InvalidOperationException($"Property {attr.KeyPropertyName} marked as Key does not exist!");
 
-                var sourceProperty = attr.SourceType.GetProperty(attr.SourcePropertyName);
-                if (sourceProperty == null)
-                    throw new InvalidOperationException($"Source Property {attr.SourcePropertyName} does not exist in Type {attr.SourceType.Name}!");
+                metadata.KeyProperty = keyProperty;
 
-                if (!sourceProperty.CanRead)
-                    throw new InvalidOperationException($"Cannot read Sorce Property {sourceProperty.Name} in Type {attr.SourceType.Name}!");
+                if (attr.SourcePropertyName != null && attr.SourceType != null)
+                {
+                    var sourceProperty = attr.SourceType.GetProperty(attr.SourcePropertyName);
+                    if (sourceProperty == null)
+                        throw new InvalidOperationException(
+                            $"Source Property {attr.SourcePropertyName} does not exist in Type {attr.SourceType.Name}!");
 
-                if (!ValueObtainers.ContainsKey(attr.SourceType))
+                    if (!sourceProperty.CanRead)
+                        throw new InvalidOperationException(
+                            $"Cannot read Sorce Property {sourceProperty.Name} in Type {attr.SourceType.Name}!");
+
+                    metadata.SourceProperty = sourceProperty;
+                    metadata.SourceType = sourceProperty.ReflectedType;
+                }
+                else
+                {
+                    //Obtain source type by type of destination property
+                    metadata.SourceType = destinationProperty.PropertyType;
+                }
+
+                if (!ValueObtainers.ContainsKey(metadata.SourceType))
                     throw new NotSupportedException($"Lookup for Type {attr.SourceType.Name} is not supported!");
-
-                metadataList.Add(new ValueInjectionMetadata(destinationProperty, keyProperty, sourceProperty));
+                
+                metadataList.Add(metadata);
             }
             MetadataCache[type] = metadataList;
             return metadataList;

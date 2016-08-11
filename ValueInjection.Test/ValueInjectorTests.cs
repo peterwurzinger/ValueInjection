@@ -239,6 +239,17 @@ namespace ValueInjection.Test
             ValueInjector.InjectValues(stringEnumerable);
         }
 
+        [Fact]
+        public void ShouldInjectWholeSourceInstance()
+        {
+            ValueInjector.UseValueObtainer(_remoteValueObtainer);
+            var testData = new ReferenceObjectInjectionTestData {ValueKey = 1};
+
+            ValueInjector.InjectValues(testData);
+
+            Assert.NotNull(testData.RemoteTestData);
+        }
+
         public void Dispose()
         {
             ValueInjector.Clear();

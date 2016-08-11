@@ -8,19 +8,34 @@ namespace ValueInjection
     public class ValueInjectionMetadata
     {
         //The property which's value will be overridden
-        internal PropertyInfo DestinationProperty { get; private set; }
+        internal PropertyInfo DestinationProperty { get; set; }
 
         //The property which's value will be used as key to find the convenient Object 
-        internal PropertyInfo KeyProperty { get; private set; }
+        internal PropertyInfo KeyProperty { get; set; }
 
-        //The Property of the Type to read value from
-        internal PropertyInfo SourceProperty { get; private set; }
+        //The Property of the source type to read value from
+        internal PropertyInfo SourceProperty { get; set; }
+
+        internal Type SourceType { get; set; }
+
+        public ValueInjectionMetadata()
+        {
+            
+        }
+
+        internal ValueInjectionMetadata(PropertyInfo destinationProperty, PropertyInfo keyProperty, Type sourceType)
+        {
+            DestinationProperty = destinationProperty;
+            KeyProperty = keyProperty;
+            SourceType = sourceType;
+        }
 
         internal ValueInjectionMetadata(PropertyInfo destinationProperty, PropertyInfo keyProperty, PropertyInfo sourceProperty)
         {
             DestinationProperty = destinationProperty;
             KeyProperty = keyProperty;
             SourceProperty = sourceProperty;
+            SourceType = sourceProperty.ReflectedType;
         }
 
         internal static ValueInjectionMetadata FromExpression
