@@ -3,7 +3,7 @@ using ValueInjection.Configuration;
 
 namespace ValueInjection
 {
-    public static class MetadataBuilder
+    public static class ValueInjectionMetadataBuilder
     {
         public static ITypeSelectorExpression<TTarget> Replacement<TTarget>()
         {

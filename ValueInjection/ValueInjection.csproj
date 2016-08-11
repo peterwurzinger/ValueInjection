@@ -42,7 +42,7 @@
     <Compile Include="Configuration\SourcTypeSelectorExpression.cs" />
     <Compile Include="Configuration\DestinationPropertySelectorExpression.cs" />
     <Compile Include="Configuration\TypeSelectorExpression.cs" />
-    <Compile Include="MetadataBuilder.cs" />
+    <Compile Include="ValueInjectionMetadataBuilder.cs" />
     <Compile Include="ValueInjectionAttribute.cs" />
     <Compile Include="IValueObtainer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
