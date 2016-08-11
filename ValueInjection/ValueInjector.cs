@@ -80,14 +80,14 @@ namespace ValueInjection
                 if (key == null)
                     throw new InvalidOperationException($"Value of Key-Property {metadata.KeyProperty.Name} is null!");
 
-                var cacheAccessor = Tuple.Create(metadata.SourceType, key);
+                var cacheAccessor = Tuple.Create(metadata.SourceProperty.ReflectedType, key);
 
                 object lookupObject;
                 if (ValueCache.ContainsKey(cacheAccessor))
                     lookupObject = ValueCache[cacheAccessor];
                 else
                 {
-                    lookupObject = ValueObtainers[metadata.SourceType].ObtainValue(key);
+                    lookupObject = ValueObtainers[metadata.SourceProperty.ReflectedType].ObtainValue(key);
                     if (lookupObject == null)
                         throw new InvalidOperationException("Obtained value is null!");
 
@@ -98,6 +98,13 @@ namespace ValueInjection
                 metadata.DestinationProperty.SetValue(@object, value);
             }
             Task.WaitAll(tasks.ToArray());
+        }
+
+        internal static void UseMetadata<TDestination>(ValueInjectionMetadata metadata)
+        {
+            if (!MetadataCache.ContainsKey(typeof(TDestination)))
+                MetadataCache[typeof(TDestination)] = new List<ValueInjectionMetadata>();
+            MetadataCache[typeof (TDestination)].Add(metadata);
         }
 
         private static IEnumerable<ValueInjectionMetadata> GetOrAddMetadata(Type type)
@@ -131,7 +138,7 @@ namespace ValueInjection
                 if (!ValueObtainers.ContainsKey(attr.SourceType))
                     throw new NotSupportedException($"Lookup for Type {attr.SourceType.Name} is not supported!");
 
-                metadataList.Add(new ValueInjectionMetadata(destinationProperty, keyProperty, attr.SourceType, sourceProperty));
+                metadataList.Add(new ValueInjectionMetadata(destinationProperty, keyProperty, sourceProperty));
             }
             MetadataCache[type] = metadataList;
             return metadataList;

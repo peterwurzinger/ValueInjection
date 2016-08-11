@@ -34,6 +34,15 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\ISourcePropertySelectorExpression.cs" />
+    <Compile Include="Configuration\ISourcTypeSelectorExpression.cs" />
+    <Compile Include="Configuration\IDestinationPropertySelectorExpression.cs" />
+    <Compile Include="Configuration\ITypeSelectorExpression.cs" />
+    <Compile Include="Configuration\SourcePropertySelectorExpression.cs" />
+    <Compile Include="Configuration\SourcTypeSelectorExpression.cs" />
+    <Compile Include="Configuration\DestinationPropertySelectorExpression.cs" />
+    <Compile Include="Configuration\TypeSelectorExpression.cs" />
+    <Compile Include="MetadataBuilder.cs" />
     <Compile Include="ValueInjectionAttribute.cs" />
     <Compile Include="IValueObtainer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
