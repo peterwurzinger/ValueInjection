@@ -20,11 +20,13 @@ namespace ValueInjection
 
         public bool MoveNext()
         {
+            _current = null;
             return _underlyingEnumerator.MoveNext();
         }
 
         public void Reset()
         {
+            _current = null;
             _underlyingEnumerator.Reset();
         }
 
@@ -33,12 +35,11 @@ namespace ValueInjection
         {
             get
             {
+                if (_current != null)
+                    return _current;
+
                 var currentObject = _underlyingEnumerator.Current;
-                if (_current == null || _current != currentObject)
-                {
-                    ValueInjector.InjectValues(currentObject, RecursiveInjection);
-                    _current = currentObject;
-                }
+                _current = ValueInjector.InjectValues(currentObject, RecursiveInjection);
                 return _current;
             }
         }
