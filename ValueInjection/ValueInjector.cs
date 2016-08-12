@@ -26,11 +26,16 @@ namespace ValueInjection
             ValueObtainers[typeof(TLookupType)] = valueObtainer;
         }
 
-        public static void InjectValues(object @object, bool recursive = true)
+        public static T InjectValues<T>(T @object, bool recursive = true)
+        {
+            return (T)InjectValues((object) @object, recursive);
+        }
+
+        public static object InjectValues(object @object, bool recursive = true)
         {
             //Do not throw exception, null values are fine
             if (@object == null)
-                return;
+                return null;
 
             var tasks = new List<Task>();
 
@@ -104,6 +109,8 @@ namespace ValueInjection
                 metadata.DestinationProperty.SetValue(@object, value);
             }
             Task.WaitAll(tasks.ToArray());
+
+            return @object;
         }
 
         internal static void UseMetadata<TDestination>(ValueInjectionMetadata metadata)
