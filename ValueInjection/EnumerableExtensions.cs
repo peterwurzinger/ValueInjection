@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace ValueInjection
 {
-    public static class ValueInjectionExtensions
+    public static class EnumerableExtensions
     {
         public static IQueryable<T> ToValueInjection<T>(this IQueryable<T> query, bool recursiveInjection = true)
         {

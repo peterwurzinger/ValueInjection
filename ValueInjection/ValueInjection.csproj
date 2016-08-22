@@ -43,6 +43,7 @@
     <Compile Include="Configuration\SourcTypeSelectorExpression.cs" />
     <Compile Include="Configuration\DestinationPropertySelectorExpression.cs" />
     <Compile Include="Configuration\TypeSelectorExpression.cs" />
+    <Compile Include="IValueInjectionMetadataCache.cs" />
     <Compile Include="ValueInjectionMetadataBuilder.cs" />
     <Compile Include="ValueInjectionAttribute.cs" />
     <Compile Include="IValueObtainer.cs" />
@@ -50,9 +51,10 @@
     <Compile Include="ValueInjectionEnumerable.cs" />
     <Compile Include="ValueInjectionEnumerator.cs" />
     <Compile Include="ValueInjectionMetadata.cs" />
+    <Compile Include="ValueInjectionMetadataCache.cs" />
     <Compile Include="ValueInjectionQuery.cs" />
     <Compile Include="ValueInjector.cs" />
-    <Compile Include="ValueInjectionExtensions.cs" />
+    <Compile Include="EnumerableExtensions.cs" />
     <Compile Include="ValueInjectionQueryProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
