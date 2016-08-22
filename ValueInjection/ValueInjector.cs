@@ -27,8 +27,9 @@ namespace ValueInjection
         }
 
         public static T InjectValues<T>(T @object, bool recursive = true)
+            where T : class
         {
-            return (T)InjectValues((object) @object, recursive);
+            return (T)InjectValues((object)@object, recursive);
         }
 
         public static object InjectValues(object @object, bool recursive = true)
@@ -49,6 +50,7 @@ namespace ValueInjection
                         && (!p.PropertyType.IsValueType
                         && !NotInjectableTypes.Contains(p.PropertyType))))
                 {
+                    //Handle reference properties of enumerable type
                     if (typeof(IEnumerable).IsAssignableFrom(referenceProperty.PropertyType))
                     {
                         var enumerableValue = (IEnumerable)referenceProperty.GetValue(@object);
@@ -122,9 +124,11 @@ namespace ValueInjection
 
         private static IEnumerable<ValueInjectionMetadata> GetOrAddMetadata(Type type)
         {
+            //Do not analyze type if metadata already present in cache
             if (MetadataCache.ContainsKey(type))
                 return MetadataCache[type];
 
+            //Analyze implementing interfaces for injection
             var metadataList = type.GetInterfaces().SelectMany(GetOrAddMetadata).ToList();
             if (type.BaseType != null)
                 metadataList.AddRange(GetOrAddMetadata(type.BaseType));
