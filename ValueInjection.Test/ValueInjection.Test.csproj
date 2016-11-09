@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="CountingValueObtainer.cs" />
     <Compile Include="Data\EnumerableChildPropertyTestData.cs" />
+    <Compile Include="Data\ExceptionThrowingGetterTestData.cs" />
     <Compile Include="Data\IHasRemoteTestData.cs" />
     <Compile Include="Data\InterfaceImplementingTestData.cs" />
     <Compile Include="Data\NullReturningObtainer.cs" />

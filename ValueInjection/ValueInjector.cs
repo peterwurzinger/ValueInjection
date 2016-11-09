@@ -66,7 +66,8 @@ namespace ValueInjection
                     }
                     else
                     {
-                        tasks.Add(Task.Factory.StartNew(() => InjectValues(referenceProperty.GetValue(@object))));
+                        if (MetadataCache.GetOrAddMetadata(referenceProperty.PropertyType).Any())
+                            tasks.Add(Task.Factory.StartNew(() => InjectValues(referenceProperty.GetValue(@object))));
                     }
                 }
             }

@@ -265,6 +265,14 @@ namespace ValueInjection.Test
             Assert.NotNull(testData.RemoteTestData);
         }
 
+        [Fact]
+        public void ShouldNotAccessGetterOfIrrelevantReferencePropertyType()
+        {
+            var testData = new TestDataWithExceptionThrowingGetter();
+
+            ValueInjector.InjectValues(testData);
+        }
+
         public void Dispose()
         {
             ValueInjector.Clear();
