@@ -243,7 +243,7 @@ namespace ValueInjection.Test
         public void ShouldInjectWholeSourceInstance()
         {
             ValueInjector.UseValueObtainer(_remoteValueObtainer);
-            var testData = new ReferenceObjectInjectionTestData {ValueKey = 1};
+            var testData = new ReferenceObjectInjectionTestData { ValueKey = 1 };
 
             ValueInjector.InjectValues(testData);
 
@@ -258,7 +258,7 @@ namespace ValueInjection.Test
                                                                                         .FromKey(td => td.ValueKey));
 
             ValueInjector.UseValueObtainer(_remoteValueObtainer);
-            var testData = new InterfaceImplementingTestData {ValueKey = 1};
+            var testData = new InterfaceImplementingTestData { ValueKey = 1 };
 
             ValueInjector.InjectValues(testData);
 
@@ -279,6 +279,20 @@ namespace ValueInjection.Test
             var testData = new TestDataWithExceptionThrowingEnumerableGetter();
 
             ValueInjector.InjectValues(testData);
+        }
+
+        [Fact]
+        public void ShouldHandleRecursiveTypes()
+        {
+            ValueInjectionMetadataBuilder.ConfigureReplacement<RecursiveTestData>(f => f.Of(v => v.RemoteValue).With<RemoteTestData>().Property(t => t.RemoteValue).FromKey(k => k.RemoteValueKey));
+            ValueInjector.UseValueObtainer(_remoteValueObtainer);
+
+            var leftData = new RecursiveTestData();
+            var rightData = new RecursiveTestData();
+            leftData.TestData = rightData;
+            rightData.TestData = leftData;
+
+            ValueInjector.InjectValues(leftData);
         }
 
         public void Dispose()

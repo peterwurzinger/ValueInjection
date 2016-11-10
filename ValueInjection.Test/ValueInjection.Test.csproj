@@ -60,6 +60,7 @@
     <Compile Include="Data\InterfaceImplementingTestData.cs" />
     <Compile Include="Data\NullReturningObtainer.cs" />
     <Compile Include="Data\ReadonlyKeyPropertyTestData.cs" />
+    <Compile Include="Data\RecursiveTestData.cs" />
     <Compile Include="Data\ReferenceObjectInjectionTestData.cs" />
     <Compile Include="Data\ReferenceTestData.cs" />
     <Compile Include="Data\RemoteTestData.cs" />
