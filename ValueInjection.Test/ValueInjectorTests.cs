@@ -273,7 +273,7 @@ namespace ValueInjection.Test
             ValueInjector.InjectValues(testData);
         }
 
-        [Fact]
+        [Fact(Skip = "Won't be supported")]
         public void ShouldNotAccessGetterOfEnumerable()
         {
             var testData = new TestDataWithExceptionThrowingEnumerableGetter();
