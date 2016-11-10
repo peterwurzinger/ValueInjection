@@ -273,6 +273,14 @@ namespace ValueInjection.Test
             ValueInjector.InjectValues(testData);
         }
 
+        [Fact]
+        public void ShouldNotAccessGetterOfEnumerable()
+        {
+            var testData = new TestDataWithExceptionThrowingEnumerableGetter();
+
+            ValueInjector.InjectValues(testData);
+        }
+
         public void Dispose()
         {
             ValueInjector.Clear();
